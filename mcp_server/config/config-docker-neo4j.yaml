@@ -82,22 +82,274 @@ graphiti:
   group_id: ${GRAPHITI_GROUP_ID:main}
   episode_id_prefix: ${EPISODE_ID_PREFIX:}
   user_id: ${USER_ID:mcp_user}
+
   entity_types:
-    - name: "Preference"
-      description: "User preferences, choices, opinions, or selections (PRIORITIZE over most other types except User/Assistant)"
-    - name: "Requirement"
-      description: "Specific needs, features, or functionality that must be fulfilled"
-    - name: "Procedure"
-      description: "Standard operating procedures and sequential instructions"
-    - name: "Location"
-      description: "Physical or virtual places where activities occur"
-    - name: "Event"
-      description: "Time-bound activities, occurrences, or experiences"
-    - name: "Organization"
-      description: "Companies, institutions, groups, or formal entities"
+    - name: "Actor"
+      description: "A human individual, AI agent, named participant, or any actor that can take part in projects, decisions, or governance. Includes both human users and software agents identified by a stable registry ID."
+    - name: "Concept"
+      description: "An abstract idea, domain term, technology, methodology, pattern, or piece of institutional knowledge relevant to the guild or its projects."
+    - name: "Decision"
+      description: "A governance decision, voted resolution, policy choice, or any conclusion reached through a formal or informal deliberation process. Includes Tier 1 and Tier 2 governance decisions."
     - name: "Document"
-      description: "Information content in various forms (books, articles, reports, etc.)"
-    - name: "Topic"
-      description: "Subject of conversation, interest, or knowledge domain (use as last resort)"
-    - name: "Object"
-      description: "Physical items, tools, devices, or possessions (use as last resort)"
+      description: "A written or digital artefact — report, specification, contract, policy, wiki page, design doc, email, file, or any information asset that can be referenced, versioned, or cited."
+    - name: "Domain"
+      description: "A named knowledge area or discipline curated by a designated domain expert (Actor). Domains group related Concepts (EntityTypes) and determine which actor is the Tier-2 authority for governance negotiations within that area."
+    - name: "Event"
+      description: "A discrete occurrence in time — meeting, release, incident, ceremony, conference, deployment, audit, or any timestamped happening that involves people, projects, or decisions."
+    - name: "Location"
+      description: "A physical or virtual place — office, data centre, region, city, country, cloud zone, or any named spatial reference relevant to people, projects, events, or infrastructure."
+    - name: "Milestone"
+      description: "A named delivery phase or checkpoint within a project that groups one or more related sprints. Marks a meaningful stage of progress toward the project goal."
+    - name: "Opportunity"
+      description: "A potential value-creating initiative, market opening, partnership, feature idea, or strategic bet that the guild could pursue. Opportunities are distinct from decisions (which are resolved) and risks (which are threats) — they represent upside possibilities worth tracking, evaluating, and acting on."
+    - name: "Organization"
+      description: "A company, team, guild, institution, consortium, or any formal group of people or agents working toward a shared purpose."
+    - name: "Project"
+      description: "A software project, product initiative, or any bounded body of work with a defined goal. Contains milestones, which in turn contain sprints and sprint items."
+    - name: "Risk"
+      description: "An identified risk, threat, vulnerability, concern, or pre-mortem signal that could negatively affect a project or decision. Includes both technical and governance risks."
+    - name: "Sprint"
+      description: "A time-boxed iteration within a milestone, containing one or more sprint items (tasks). Represents a discrete unit of planned and executed work."
+    - name: "SprintItem"
+      description: "A single task, user story, bug, or work item that belongs to a sprint. Represents the smallest unit of trackable work in the project hierarchy."
+
+  edge_types:
+    # Actor -> Project
+    - name: ASSIGNED_TO
+      source_types: [Actor]
+      target_types: [Project]
+      description: "An Actor is assigned to a Project with a specific role."
+
+    # Actor -> Event
+    - name: ATTENDED
+      source_types: [Actor]
+      target_types: [Event]
+      description: "An Actor attended an Event in a particular capacity."
+
+    # Actor -> Document
+    - name: AUTHORED
+      source_types: [Actor]
+      target_types: [Document]
+      description: "An Actor authored or contributed to a Document."
+
+    # SprintItem -> SprintItem
+    - name: BLOCKS
+      source_types: [SprintItem]
+      target_types: [SprintItem]
+      description: "A SprintItem is blocking another SprintItem."
+
+    # Actor -> Opportunity
+    - name: CHAMPIONS
+      source_types: [Actor]
+      target_types: [Opportunity]
+      description: "An Actor is championing or owns an Opportunity."
+
+    # Concept -> Domain
+    - name: CONCEPT_OF
+      source_types: [Concept]
+      target_types: [Domain]
+      description: "A Concept belongs to a Domain."
+
+    # Decision -> Risk
+    - name: CREATES_RISK
+      source_types: [Decision]
+      target_types: [Risk]
+      description: "A Decision creates or introduces a Risk."
+
+    # Actor -> Domain
+    - name: CURATES
+      source_types: [Actor]
+      target_types: [Domain]
+      description: "An Actor curates a Domain as its designated expert."
+
+    # Concept -> Concept
+    - name: DEPENDS_ON
+      source_types: [Concept]
+      target_types: [Concept]
+      description: "A Concept depends on another Concept."
+
+    # Document -> Project
+    - name: DOCUMENTS
+      source_types: [Document]
+      target_types: [Project]
+      description: "A Document documents a Project."
+
+    # Decision -> Opportunity
+    - name: ENABLES
+      source_types: [Decision]
+      target_types: [Opportunity]
+      description: "A Decision enables an Opportunity."
+
+    # Document -> Decision
+    - name: EVIDENCES
+      source_types: [Document]
+      target_types: [Decision]
+      description: "A Document provides evidence supporting a Decision."
+
+    # Actor -> Domain
+    - name: EXPERT_IN
+      source_types: [Actor]
+      target_types: [Domain]
+      description: "An Actor has expertise in a Domain."
+
+    # Project -> Decision
+    - name: GOVERNED_BY
+      source_types: [Project]
+      target_types: [Decision]
+      description: "A Project is governed or affected by a Decision."
+
+    # Sprint -> Event
+    - name: HAS_EVENT
+      source_types: [Sprint]
+      target_types: [Event]
+      description: "A Sprint has an associated Event (e.g. Sprint Review, Planning)."
+
+    # Project -> Milestone
+    - name: HAS_MILESTONE
+      source_types: [Project]
+      target_types: [Milestone]
+      description: "A Project contains a Milestone."
+
+    # Milestone -> Sprint
+    - name: HAS_SPRINT
+      source_types: [Milestone]
+      target_types: [Sprint]
+      description: "A Milestone contains a Sprint."
+
+    # Sprint -> SprintItem
+    - name: HAS_SPRINTITEM
+      source_types: [Sprint]
+      target_types: [SprintItem]
+      description: "A Sprint contains a SprintItem."
+
+    # Organization -> Location
+    - name: HEADQUARTERED_IN
+      source_types: [Organization]
+      target_types: [Location]
+      description: "An Organization is headquartered in a Location."
+
+    # Event -> Location
+    - name: HELD_AT
+      source_types: [Event]
+      target_types: [Location]
+      description: "An Event was held at a Location."
+
+    # Actor -> Risk
+    - name: IDENTIFIED
+      source_types: [Actor]
+      target_types: [Risk]
+      description: "An Actor identified a Risk."
+
+    # Actor -> Project
+    - name: INITIATED
+      source_types: [Actor]
+      target_types: [Project]
+      description: "An Actor initiated a Project."
+
+    # Actor -> Organization
+    - name: LEADS
+      source_types: [Actor]
+      target_types: [Organization]
+      description: "An Actor leads an Organization."
+
+    # Actor -> Location
+    - name: LOCATED_IN
+      source_types: [Actor]
+      target_types: [Location]
+      description: "An Actor is located in a Location."
+
+    # Actor -> Organization
+    - name: MEMBER_OF
+      source_types: [Actor]
+      target_types: [Organization]
+      description: "An Actor is a member of an Organization."
+
+    # Decision -> Risk
+    - name: MITIGATES
+      source_types: [Decision]
+      target_types: [Risk]
+      description: "A Decision mitigates a Risk."
+
+    # Location -> Location
+    - name: NESTS_LOCATION
+      source_types: [Location]
+      target_types: [Location]
+      description: "A Location is nested within another Location."
+
+    # Actor -> Event
+    - name: ORGANIZED
+      source_types: [Actor]
+      target_types: [Event]
+      description: "An Actor organized an Event."
+
+    # Organization -> Project
+    - name: OWNS
+      source_types: [Organization]
+      target_types: [Project]
+      description: "An Organization owns a Project."
+
+    # Document -> Event
+    - name: PRODUCED_AT
+      source_types: [Document]
+      target_types: [Event]
+      description: "A Document was produced at an Event."
+
+    # Project -> Opportunity
+    - name: PURSUES
+      source_types: [Project]
+      target_types: [Opportunity]
+      description: "A Project pursues an Opportunity."
+
+    # Actor -> Decision
+    - name: RAISED
+      source_types: [Actor]
+      target_types: [Decision]
+      description: "An Actor raised a Decision."
+
+    # Document -> Document
+    - name: REFERENCES
+      source_types: [Document]
+      target_types: [Document]
+      description: "A Document references another Document."
+
+    # Concept -> Concept
+    - name: RELATED_TO
+      source_types: [Concept]
+      target_types: [Concept]
+      description: "A Concept is related to another Concept."
+
+    # Event -> Project
+    - name: RELATES_TO_PROJECT
+      source_types: [Event]
+      target_types: [Project]
+      description: "An Event relates to a Project."
+
+    # Event -> Decision
+    - name: RESULTED_IN
+      source_types: [Event]
+      target_types: [Decision]
+      description: "An Event resulted in a Decision."
+
+    # Organization -> Project
+    - name: SPONSORS
+      source_types: [Organization]
+      target_types: [Project]
+      description: "An Organization sponsors a Project."
+
+    # Risk -> Project
+    - name: THREATENS
+      source_types: [Risk]
+      target_types: [Project]
+      description: "A Risk threatens a Project."
+
+    # Actor -> Decision
+    - name: VOTED_ON
+      source_types: [Actor]
+      target_types: [Decision]
+      description: "An Actor voted on a Decision."
+
+    # Actor -> SprintItem
+    - name: WORKS_ON
+      source_types: [Actor]
+      target_types: [SprintItem]
+      description: "An Actor works on a SprintItem."
