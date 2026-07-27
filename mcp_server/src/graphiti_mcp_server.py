@@ -989,6 +989,8 @@ async def add_triplet(
     group_id: str | None = None,
     source_node_uuid: str | None = None,
     target_node_uuid: str | None = None,
+    source_node_labels: list[str] | None = None,
+    target_node_labels: list[str] | None = None,
 ) -> TripletResponse | ErrorResponse:
     """Directly add a single fact triplet (source entity -> fact -> target entity).
 
@@ -1006,6 +1008,10 @@ async def add_triplet(
             generated when omitted.
         target_node_uuid: Optional UUID to reuse an existing target entity. A new UUID is
             generated when omitted.
+        source_node_labels: Optional semantic type labels for the source node (e.g. ["Project"]).
+            "Entity" is always added automatically by graphiti-core.
+        target_node_labels: Optional semantic type labels for the target node (e.g. ["Milestone"]).
+            "Entity" is always added automatically by graphiti-core.
     """
     global graphiti_service
 
@@ -1025,12 +1031,14 @@ async def add_triplet(
             name=source_node_name,
             group_id=effective_group_id,
             created_at=now,
+            labels=source_node_labels or [],
         )
         target_node = EntityNode(
             uuid=target_node_uuid or str(uuid4()),
             name=target_node_name,
             group_id=effective_group_id,
             created_at=now,
+            labels=target_node_labels or [],
         )
         edge = EntityEdge(
             name=edge_name,
