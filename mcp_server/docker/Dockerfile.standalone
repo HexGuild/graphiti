@@ -42,8 +42,9 @@ ENV UV_COMPILE_BYTECODE=1 \
 # Set up MCP server directory
 WORKDIR /app/mcp
 
-# Accept graphiti-core version as build argument
-ARG GRAPHITI_CORE_VERSION=0.29.1
+# Accept graphiti-core version as build argument.
+# Default pinned to the current HEXi target; override via --build-arg GRAPHITI_CORE_VERSION=x.y.z.
+ARG GRAPHITI_CORE_VERSION=0.31.2
 ARG SOCKET_FIREWALL_ENABLED=false
 # Unique per release run so enforced builds re-resolve and re-download instead
 # of reusing cached layers, which sfw would never see.
@@ -79,9 +80,9 @@ RUN --mount=type=secret,id=socket_api_key \
     rm -f uv.lock; \
     $UV_CMD lock
 
-# Install Python dependencies (exclude dev dependency group)
-# Include optional provider extras so the image matches the providers
-# advertised by the MCP server configuration and docs.
+# Install Python dependencies (exclude dev dependency group).
+# `--extra providers` pulls Anthropic/Groq/Voyage/Gemini wrappers;
+# `--extra azure` pulls azure-identity.
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=secret,id=socket_api_key \
     set -eu; \
